@@ -1,15 +1,12 @@
-import React, { useState } from 'react'
+import React, { useState, ChangeEvent } from 'react'
 
 interface CheckBoxProps {
   text?: string
+  handleCheckboxChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  isChecked?: boolean;
 }
-function Checkbox({ text }: CheckBoxProps) {
-  const [isChecked, setIsChecked] = useState(false)
-
-  const handleCheckboxChange = () => {
-    setIsChecked(!isChecked)
-  }
-
+function Checkbox({ text, isChecked, handleCheckboxChange }: CheckBoxProps) {
+  
   return (
     <div className="flex items-center">
       <input

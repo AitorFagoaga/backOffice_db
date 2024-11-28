@@ -1,5 +1,4 @@
 import type { ChangeEvent } from 'react'
-import { PencilIcon, TrashIcon } from "lucide-react";
 
 interface InputProps {
   text?: string
@@ -7,7 +6,7 @@ interface InputProps {
   placeholder?: string
   name?: string
   value?: string | number
-  handleChange?: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+  handleChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleBlur?: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
   errors?: string
   extraClassName?: string
@@ -41,9 +40,8 @@ function FieldInput({
       </label>
       <input
         type="text"
-        id={text}
-        name={text}
-        value={name}
+        id={name}
+        name={name}
         onChange={handleChange}
         className={`mt-1 p-2 block w-full rounded-md border-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm`}
         placeholder={placeholder}

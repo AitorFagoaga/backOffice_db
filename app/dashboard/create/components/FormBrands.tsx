@@ -1,108 +1,89 @@
 "use client";
-import { type ChangeEvent, useEffect, useState } from 'react'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { PencilIcon, TrashIcon } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import FieldInput from "@/components/create/FieldInput"
-import TextArea from "@/components/create/TextArea"
-import CheckBox from "@/components/create/CheckBox"
-import Select  from '@/components/create/select';
+import { type ChangeEvent, useState } from 'react';
+import FieldInput from "@/components/create/FieldInput";
+import TextArea from "@/components/create/TextArea";
+import CheckBox from "@/components/create/CheckBox";
 import ImageUpload from '@/components/create/ImageUpload';
+import type { BrandCategoryI } from '@/types/brandCategory';
+import MultiSelect from '@/components/create/MultiSelect';
 
 interface FormInputsProps {
-    onSubmit?: (data: FormData) => void;
-  }
-  
-  interface FormData {
-    name: string;
-    email: string;
-    password: string;
-    rememberMe: boolean;
-    role: string;
-    image: File | null;
-  }
-  interface ChangePasswordModalI {
-    actualPassword: string
-    newPassword: string
-    repeatPassword: string
-  }
-  
-export function FormBrands({onSubmit}:FormInputsProps) {
-    const [formData, setFormData] = useState<FormData>({
-        name: "",
-        email: "",
-        password: "",
-        rememberMe: false,
-        role: "user",
-        image: null,
-      });
-      const [values, setValues] = useState<ChangePasswordModalI>({
-        actualPassword: '',
-        newPassword: '',
-        repeatPassword: '',
-      })
-      const [imagePreview, setImagePreview] = useState<string | null>(null); 
-    
-    
-      function valuesChange(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-        const { name, value } = e.target
-    
-        setValues((prevValues) => ({
-          ...prevValues,
-          [name]: value,
-        }))
-      }
-      const handleImageChange = (file: File | null) => {
-        setFormData((prevData) => ({
-          ...prevData,
-          image: file,
-        }));
-      };
-      const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        onSubmit(formData);
-      };
-      const roleOptions = [
-        { value: 'user', label: 'User' },
-        { value: 'admin', label: 'Admin' },
-      ];
+  onFormDataChange: (data: Partial<BrandCategoryI>) => void;
+  onSubmit?: (data: FormData) => void;
+  categoryExist: boolean;
+  setCategoryExist: (value: boolean) => void;
+  handleCheckboxChange: () => void;
+  formData: BrandCategoryI
+}
+
+interface FormData {
+  name: string;
+  email: string;
+  password: string;
+  rememberMe: boolean;
+  role: string;
+  image: File | null;
+}
+
+export function FormBrands({ onSubmit, onFormDataChange, categoryExist, setCategoryExist, handleCheckboxChange, formData }: FormInputsProps) {
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    onFormDataChange({ [name]: value });
+  };
+  const handleMultiSelectChange = (selectedValues: string[]) => {
+    onFormDataChange({ existingCategoryId: selectedValues });
+  };
+  const handleImageChange = (file: File | null) => {
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      setImagePreview(null);
+    }
+    onFormDataChange({ logoImg: file });
+  };
+
+  const roleOptions = [
+    { value: 'user', label: 'User' },
+    { value: 'admin', label: 'Admin' },
+  ];
 
   return (
-        <div className='w-full'>
-           <h1 className="text-2xl mb-4 font-bold">Marcas</h1>
-          <div className="space-y-4">
-          <ImageUpload
+    <div className='w-full'>
+      <h1 className="text-2xl mb-4 font-bold">Marcas</h1>
+      <div className="space-y-4">
+        <ImageUpload
+          name='logoImg'
           text='Subir Logo de marca'
-            onImageChange={handleImageChange} 
-            imagePreview={formData.image ? URL.createObjectURL(formData.image) : null} 
-            />
-            <FieldInput name="" text='Nombre de la marca' placeholder='Nombre' handleChange={valuesChange} />
-            <FieldInput name="" text='Email de contacto oficial' placeholder='contacto@oficial.com' handleChange={valuesChange} />
-            <TextArea text='Descripcion de la marca' placeholder='Descripcion'/>
-            <div className='flex'>
-              <FieldInput name="" 
-                text='Instagram oficial' 
-                DivExtraClassName='mr-2 w-full' 
-                placeholder='https://www.instagram.com' 
-                handleChange={valuesChange} 
-                />
-              <FieldInput 
-                name="" 
-                text='Website oficial' 
-                DivExtraClassName='w-full' 
-                placeholder='https://www.website.com' 
-                handleChange={valuesChange} 
-                />
-            </div>
-            <CheckBox text='Tiene una categoria existente'/>
-            
-
-            
-            <Select options={roleOptions} label={'Categoria'}/>
-           
-          </div>
-        </div>
+          onImageChange={handleImageChange}
+          imagePreview={imagePreview}
+        />
+        <FieldInput name="brandName" text='Nombre de la marca' placeholder='Nombre' handleChange={handleInputChange} />
+        <FieldInput name="emailOficial" text='Email de contacto oficial' placeholder='contacto@oficial.com' handleChange={handleInputChange} />
+        <TextArea name='description' text='Descripción de la marca' placeholder='Descripción' handleChange={handleInputChange} />
         
+        {/* Contenedor flexible para inputs de Instagram y Website */}
+        <div className='flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2'>
+          <FieldInput
+            name="instagramUrl"
+            text='Instagram oficial'
+            DivExtraClassName='w-full'
+            placeholder='https://www.instagram.com'
+            handleChange={handleInputChange}
+          />
+          <FieldInput
+            name="websiteUrl"
+            text='Website oficial'
+            DivExtraClassName='w-full'
+            placeholder='https://www.website.com'
+            handleChange={handleInputChange}
+          />
+        </div>
+
+        <CheckBox isChecked={categoryExist} handleCheckboxChange={handleCheckboxChange} text='Crear una categoria' />
+        <MultiSelect disabled={categoryExist}  value={formData.existingCategoryId || []} handleChange={handleMultiSelectChange} name='existingCategoryId' options={roleOptions} label={'Categorías existente'} />
+      </div>
+    </div>
   );
 }

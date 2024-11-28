@@ -3,47 +3,56 @@ import { type ChangeEvent, useEffect, useState } from 'react'
 
 import { FormBrands } from './FormBrands';
 import { FormCategory } from './FormCategory';
-
-interface FormData {
-  brandName: string;
-  email: string;
-  websiteUrl: string;
-  instagramUrl: string;
-  country: string;
-  image?: File | null; 
-}
-  
+import type {BrandCategoryI} from '@/types/brandCategory';
   
 export function AllForms() {
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<BrandCategoryI>({
     brandName: "",
-    email:"",
+    emailOficial:"",
+    description:"",
+    logoImg: null, 
     websiteUrl: "",
     instagramUrl: "",
     country:"Argentina",
-    image: null,
+    existingCategoryId: [],
+    newCategoryName: "",
+    newCategoryImageUrl: null,
   });
 
-  // Maneja la actualización de formData desde el hijo
-  const handleFormDataChange = (newData: Partial<FormData>) => {
+  const [ categoryExist, setCategoryExist ] = useState(false);
+
+  const handleFormDataChange = (newData: Partial<BrandCategoryI>) => {
     setFormData((prevData) => ({
         ...prevData,
         ...newData,
     }));
 };
 
+const handleCheckboxChange = () => {
+  setCategoryExist(!categoryExist);
+}
+
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    console.log(formData);
   };
-
+  console.log('formData', formData);
   return (
     <div className="rounded-md border p-6">
       <form onSubmit={handleSubmit}>
-        <div className='flex '>
+        <div className='flex flex-col md:flex-row'>
           
-          <FormBrands/>
-          <FormCategory onFormDataChange={handleFormDataChange}/>
+          <FormBrands 
+          formData={formData}
+            categoryExist={categoryExist}
+            setCategoryExist={setCategoryExist} 
+            handleCheckboxChange={handleCheckboxChange}
+            onFormDataChange={handleFormDataChange}/>
+          <FormCategory 
+           onFormDataChange={handleFormDataChange}
+           categoryExist={categoryExist}
+           />
         </div>
         <div className="flex justify-end mt-4"> 
           <button
